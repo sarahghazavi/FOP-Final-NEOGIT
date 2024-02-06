@@ -217,6 +217,7 @@ void AddRedo(char *REPOSITORY, char *staging)
     closedir(dir);
     return;
 }
+
 // Removes file or folder from staging area if it's staged.
 void Reset(char *relative, char *REPOSITORY)
 {
