@@ -698,7 +698,7 @@ void DiffTwo(char *path_1, char *path_2)
     3. Starts reading each VALID line and passing to CompareLine function.
     4. Marks a value for merge function.
 */
-int Diff(char *file1, char *file2, int begin_1, int end_1, int begin_2, int end_2)
+bool Diff(char *file1, char *file2, int begin_1, int end_1, int begin_2, int end_2)
 {
     FILE *fptr_1 = fopen(file1, "r");
     FILE *fptr_2 = fopen(file2, "r");
@@ -960,7 +960,7 @@ void Merge(char *branch_1, char *branch_2, char *REPOSITORY)
 void RunHook(char *REPOSITORY, char *file, bool print)
 {
     char hook[PATH_MAX];
-    sprintf(hook, "%s/.neogit/applied_hook", REPOSITORY);
+    sprintf(hook, "%s/.neogit/hooks", REPOSITORY);
     DIR *dir = opendir(hook);
     struct dirent *entry;
     printf("%s:\n", file);

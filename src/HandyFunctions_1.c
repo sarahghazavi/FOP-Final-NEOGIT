@@ -161,7 +161,7 @@ void ChangeName(char *info, char *name)
     FILE *fp_w = fopen(info, "w");
     fprintf(fp_w, "name =%s\n%s", name, line);
     fclose(fp_w);
-    printf("User name added successfully!\n");
+    printf("User name added " GREEN "successfully!\n" FORMAT_RESET );
 }
 
 // Changing user email in config file
@@ -176,7 +176,7 @@ void ChangeEmail(char *info, char *email)
     FILE *fp_w = fopen(info, "w");
     fprintf(fp_w, "%semail =%s\n", line, email);
     fclose(fp_w);
-    printf("User email added successfully!\n");
+    printf("User email added " GREEN "successfully!\n" FORMAT_RESET);
 }
 
 // Returns 1 if the given files are same, returns 0 if not.

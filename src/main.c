@@ -5,9 +5,9 @@ bool CanCommit = true;
 
 int main()
 {
-    int argc = 4;
-    char *argv[] = {"neogit", "pre-commit", "hooks", "list"};
-    chdir("/home/saraghazavi/project");
+    int argc = 2;
+    char *argv[] = {"neogit", "pre-commit"};
+    chdir("/home/saraghazavi/proj");
 #else
 int main(int argc, char *argv[])
 {
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
             printf("Not a " RED "valid" FORMAT_RESET " command to create alias!\n");
         return 0;
     }
+
     else if (argc == 5 && !strcmp(argv[1], "config") && !strcmp(argv[2], "-global"))
     {
         char *home = getenv("HOME");
@@ -152,6 +153,7 @@ int main(int argc, char *argv[])
             sprintf(staging, "%s/.neogit/.staged", REPOSITORY);
             AddRedo(REPOSITORY, staging);
             Recorder(REPOSITORY);
+            printf("Unstaged files staged " GREEN "successfully!\n" FORMAT_RESET);
         }
 
         else
@@ -187,12 +189,12 @@ int main(int argc, char *argv[])
         if (!strcmp(argv[2], "-m"))
         {
             if (argc > 4)
-                printf("You message should be in " RED "quotations!\n" FORMAT_RESET);
+                printf("You message should be in " YELLOW "quotations!\n" FORMAT_RESET);
             else if (argc < 4)
-                printf("You commit should have a " RED
+                printf("Your commit should have a " YELLOW
                        "message!\n" FORMAT_RESET);
             else if (strlen(argv[3]) > 72)
-                printf("Your message can have a " RED "maximum" FORMAT_RESET " of 72 words!\n");
+                printf("Your message can have a " YELLOW "maximum" FORMAT_RESET " of 72 characters!\n");
             else
                 Commit(REPOSITORY, argv[3]);
         }
@@ -203,7 +205,7 @@ int main(int argc, char *argv[])
             sprintf(path, "%s/.neogit/shortcuts/%s.txt", REPOSITORY, argv[3]);
             FILE *f = fopen(path, "r");
             if (f == NULL)
-                printf("Shortcut doesn't exist!\n");
+                printf("Shortcut doesn't " RED "exist!\n" FORMAT_RESET);
             else
             {
                 char message[MEDIUM_SIZE];
@@ -232,7 +234,7 @@ int main(int argc, char *argv[])
         char sh_path[PATH_MAX];
         sprintf(sh_path, "%s/.neogit/shortcuts/%s.txt", REPOSITORY, argv[5]);
         if (access(sh_path, F_OK) != 0)
-            printf("Shortcut " RED "doesn't exist!\n" FORMAT_RESET);
+            printf("Shortcut doesn't " RED "exist!\n" FORMAT_RESET);
         else
         {
             FILE *sh_f = fopen(sh_path, "w");
@@ -251,7 +253,7 @@ int main(int argc, char *argv[])
         else
         {
             remove(sh_path);
-            printf("Shortcut message removed successfully!\n");
+            printf("Shortcut message removed " GREEN "successfully!\n" FORMAT_RESET);
         }
     }
 

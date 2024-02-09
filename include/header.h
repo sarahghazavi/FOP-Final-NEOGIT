@@ -91,7 +91,7 @@ void Grep(char *path, char *target, bool show_num);
 void GrepCommit(char *commit, bool show_num, char *target, char *file);
 void DiffOne(char *path_1, char *path_2);
 void DiffTwo(char *path_1, char *path_2);
-int Diff(char *file1, char *file2, int begin_1, int end_1, int begin_2, int end_2);
+bool Diff(char *file1, char *file2, int begin_1, int end_1, int begin_2, int end_2);
 void Merge(char *branch_1, char *branch_2, char *REPOSITORY);
 
 // -----------------> Pre commit Functions <-----------------

@@ -176,7 +176,7 @@ void AddRedo(char *REPOSITORY, char *staging)
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
-        if (entry->d_type == DT_DIR && strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
+        if (entry->d_type == DT_DIR && strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..") && strcmp(entry->d_name, ".neogit"))
         {
             char working[PATH_MAX];
             sprintf(working, "%s%s/%s", REPOSITORY, staging + strlen(REPOSITORY) + 16, entry->d_name);
@@ -231,7 +231,7 @@ void Reset(char *relative, char *REPOSITORY)
         return;
     }
     BashRMMaker(staging);
-    printf(ITALIC "File unstaged successfully!" NOITALIC
+    printf(ITALIC "File unstaged" GREEN " successfully!" FORMAT_RESET NOITALIC
                   "\n");
     return;
 }
@@ -256,13 +256,13 @@ void ResetUndo(char *REPOSITORY)
 
     // Clearing staging area.
     char staging[PATH_MAX];
-    sprintf(staging, "%s/.neogit/.staged/", REPOSITORY);
+    sprintf(staging, "%s/.neogit/.staged", REPOSITORY);
     BashRMMaker(staging);
 
     // Importing previous add to staging area.
     sprintf(records, "%s/.neogit/.records/%d", REPOSITORY, --ID);
     sprintf(staging, "%s/.neogit", REPOSITORY);
-    BashCPMaker(staging, records);
+    BashCPMaker(records, staging);
 
     // Renaming to ".staged".
     sprintf(records, "%s/.neogit/%d", REPOSITORY, ID);
@@ -332,24 +332,24 @@ void StatusCommit(char *REPOSITORY, char *path)
             if (access(working, F_OK) == 0)
             {
                 if (!ModeComparator(working, path))
-                    printf(ITALIC "%s\t\t" NOITALIC BOLD GREEN "T" FORMAT_RESET "\n", working + strlen(REPOSITORY));
+                    printf(ITALIC "%s\t\t" NOITALIC BOLD GREEN "T" FORMAT_RESET "\n", working + strlen(REPOSITORY) + 1);
 
                 // We just want changed files.
                 if (!IsChanged(path, working))
                 {
                     if (access(staging, F_OK) == 0)
-                        printf("%s\t\t" BOLD MAGENTA "+M" FORMAT_RESET "\n", working + strlen(REPOSITORY));
+                        printf("%s\t\t" BOLD MAGENTA "+M" FORMAT_RESET "\n", working + strlen(REPOSITORY) + 1);
                     else
-                        printf("%s\t\t" BOLD MAGENTA "-M" FORMAT_RESET "\n", working + strlen(REPOSITORY));
+                        printf("%s\t\t" BOLD MAGENTA "-M" FORMAT_RESET "\n", working + strlen(REPOSITORY) + 1);
                 }
             }
             // If it has been deleted from working directory.
             else
             {
                 if (access(staging, F_OK) == 0)
-                    printf("%s\t\t" BOLD RED "+D" FORMAT_RESET "\n", working + strlen(REPOSITORY));
+                    printf("%s\t\t" BOLD RED "+D" FORMAT_RESET "\n", working + strlen(REPOSITORY) + 1);
                 else
-                    printf("%s\t\t" BOLD RED "-D" FORMAT_RESET "\n", working + strlen(REPOSITORY));
+                    printf("%s\t\t" BOLD RED "-D" FORMAT_RESET "\n", working + strlen(REPOSITORY) + 1);
             }
             while (path[strlen(path) - 1] != '/')
                 path[strlen(path) - 1] = '\0';
@@ -390,9 +390,9 @@ void StatusWorking(char *REPOSITORY, char *path)
             if (access(commits, F_OK) != 0)
             {
                 if (access(staging, F_OK) == 0)
-                    printf("%s\t\t" BOLD YELLOW "+A" FORMAT_RESET "\n", path + strlen(REPOSITORY));
+                    printf("%s\t\t" BOLD YELLOW "+A" FORMAT_RESET "\n", path + strlen(REPOSITORY) + 1);
                 else
-                    printf("%s\t\t" BOLD YELLOW "-A" FORMAT_RESET "\n", path + strlen(REPOSITORY));
+                    printf("%s\t\t" BOLD YELLOW "-A" FORMAT_RESET "\n", path + strlen(REPOSITORY) + 1);
             }
             while (path[strlen(path) - 1] != '/')
                 path[strlen(path) - 1] = '\0';
@@ -725,8 +725,10 @@ void LogCondition(char *REPOSITORY, char *type, char *target)
         char line[BUFF_SIZE];
         while (fgets(line, sizeof(line), f) != NULL)
         {
+            if (line[strlen(line) - 1] == '\n')
+                line[strlen(line) - 1] = '\0';
             if (!strncmp(line, type, strlen(type)))
-                if (!strncmp(line + strlen(type) + 2, target, strlen(target)))
+                if (!strcmp(line + strlen(type) + 2, target))
                 {
                     char on_commit[PATH_MAX];
                     sprintf(on_commit, "%s/%d", commit, i);
@@ -917,7 +919,7 @@ void LogTime(char *REPOSITORY, char *time, char sign)
     5. Importing commit to working directory.
     6. Changing commit ID pointer.
 */
-void CheckoutBranch(char *REPOSITORY, char *target)
+void CheckoutBranch(char *target, char *REPOSITORY)
 {
     // Getting current commit ID.
     char IDs[PATH_MAX];
@@ -948,7 +950,7 @@ void CheckoutBranch(char *REPOSITORY, char *target)
     FILE *h_f = fopen(h_p, "w");
     fprintf(h_f, "%s\n", target);
     fclose(h_f);
-    printf("You've checked out on " YELLOW "%s" FORMAT_RESET GREEN "successfully!\n" FORMAT_RESET, target);
+    printf("You've checked out on " YELLOW "%s" FORMAT_RESET GREEN " successfully!\n" FORMAT_RESET, target);
 
     // Getting the last commit ID of branch.
     char b_p[PATH_MAX];
@@ -1013,7 +1015,7 @@ void CheckoutBranch(char *REPOSITORY, char *target)
 }
 
 // Same. Compares target commit branch with head to warn.
-void CheckoutCommit(char *REPOSITORY, char *target)
+void CheckoutCommit(char *target, char *REPOSITORY)
 {
     // Getting current commit ID.
     char IDs[PATH_MAX];
@@ -1062,7 +1064,7 @@ void CheckoutCommit(char *REPOSITORY, char *target)
                " to checkout!\n");
         return;
     }
-    printf("You've checked out on " YELLOW "%s" FORMAT_RESET GREEN "successfully!\n" FORMAT_RESET, target);
+    printf("You've checked out on " YELLOW "%s" FORMAT_RESET GREEN " successfully!\n" FORMAT_RESET, target);
 
     // Getting the last commit ID of branch.
     char b_p[PATH_MAX];
@@ -1177,7 +1179,7 @@ void CheckoutHead(char *REPOSITORY)
         }
     }
     fclose(b_f);
-    printf("You've checked out on " YELLOW "HEAD" FORMAT_RESET GREEN "successfully!\n" FORMAT_RESET);
+    printf("You've checked out on " YELLOW "HEAD" FORMAT_RESET GREEN " successfully!\n" FORMAT_RESET);
 
     // Cleaning working directory.
     DIR *wd_dir = opendir(REPOSITORY);
@@ -1281,7 +1283,7 @@ void CheckoutHeadN(char *REPOSITORY, char *target)
         back *= 10;
         back += target[i] - '0';
     }
-    printf("You've checked out on " YELLOW "%d" FORMAT_RESET "commits before HEAD " GREEN "successfully!\n" FORMAT_RESET, back);
+    printf("You've checked out on " YELLOW "%d" FORMAT_RESET " commits before HEAD " GREEN "successfully!\n" FORMAT_RESET, back);
     char commit[PATH_MAX];
     sprintf(commit, "%s/.neogit/commits", REPOSITORY);
     int comID = PassCommitID(REPOSITORY) - 1, i;
